@@ -10,7 +10,8 @@ func CreateBook(book models.Book) (models.Book, error) {
 	db := storage.GetDB()
 
 	sqlStatement := `INSERT INTO book (title, author, published_at) VALUES ($1, $2, $3) RETURNING id`
-	err := db.QueryRow(sqlStatement, book.Title, book.Author, book.PublishedAt).Scan(&book.Id)
+	err := db.QueryRow(sqlStatement, book.Title, book.Author, book.PublishedAt).
+		Scan(&book.Id)
 	if err != nil {
 		return book, err
 	}
@@ -25,7 +26,8 @@ func UpdateBook(book models.Book, id int) (models.Book, error) {
 	  SET title = $2, author = $3, published_at = $4
 	  WHERE id = $1
 	  RETURNING id`
-	err := db.QueryRow(sqlStatement, id, book.Title, book.Author, book.PublishedAt).Scan(&id)
+	err := db.QueryRow(sqlStatement, id, book.Title, book.Author, book.PublishedAt).
+		Scan(&id)
 	if err != nil {
 		return models.Book{}, err
 	}
