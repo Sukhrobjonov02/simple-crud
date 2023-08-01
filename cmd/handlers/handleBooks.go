@@ -11,7 +11,10 @@ import (
 
 func CreateBook(c echo.Context) error {
 	book := models.Book{}
-	c.Bind(&book)
+	err := c.Bind(&book)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 	newBook, err := repositories.CreateBook(book)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -28,7 +31,11 @@ func UpdateBook(c echo.Context) error {
 	}
 
 	book := models.Book{}
-	c.Bind(&book)
+
+	err = c.Bind(&book)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 	updatedBook, err := repositories.UpdateBook(book, idInt)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -40,7 +47,15 @@ func GetBook(c echo.Context) error {
 	id := c.Param(("id"))
 	book := models.Book{}
 	idInt, err := strconv.Atoi(id)
-	c.Bind(&book)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	err = c.Bind(&book)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	res, err := repositories.GetBook(book, idInt)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -59,6 +74,9 @@ func GetBooks(c echo.Context) error {
 func DeleteBook(c echo.Context) error {
 	id := c.Param(("id"))
 	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 	res, err := repositories.DeleteBook(idInt)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
