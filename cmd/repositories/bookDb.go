@@ -41,7 +41,8 @@ func GetBook(book models.Book, id int) (models.Book, error) {
 	  FROM book
 	  WHERE id = $1`
 
-	err := db.QueryRow(sqlStatement, id).Scan(&book.Id, &book.Title, &book.Author, &book.PublishedAt)
+	err := db.QueryRow(sqlStatement, id).
+		Scan(&book.Id, &book.Title, &book.Author, &book.PublishedAt)
 	if err != nil {
 		return book, err
 	}
