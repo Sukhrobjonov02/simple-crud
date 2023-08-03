@@ -16,7 +16,7 @@ func main() {
 	e.POST("/books", handlers.CreateBook)
 	e.PUT("/books/:id", handlers.UpdateBook)
 	e.GET("/books/:id", handlers.GetBook)
-	e.GET("/books", handlers.GetBooks)
+	e.GET("/books", handlers.GetAllBooks)
 	e.DELETE("/books/:id", handlers.DeleteBook)
 
 	e.Logger.Fatal(e.Start(":8080"))

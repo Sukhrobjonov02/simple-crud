@@ -1,16 +1,13 @@
 package repositories
 
 import (
-	"crud/cmd/models"
 	"crud/cmd/storage"
-	"fmt"
 )
 
-func CreateBook(book models.Book) (models.Book, error) {
+func CreateBook(book Book) (Book, error) {
 	db := storage.GetDB()
 
-	sqlStatement := `INSERT INTO book (title, author, published_at) VALUES ($1, $2, $3) RETURNING id`
-	err := db.QueryRow(sqlStatement, book.Title, book.Author, book.PublishedAt).
+	err := db.QueryRow(createBook, book.Title, book.Author, book.PublishedAt).
 		Scan(&book.Id)
 	if err != nil {
 		return book, err
@@ -18,32 +15,22 @@ func CreateBook(book models.Book) (models.Book, error) {
 	return book, nil
 }
 
-func UpdateBook(book models.Book, id int) (models.Book, error) {
+func UpdateBook(book Book, id int) (Book, error) {
 	db := storage.GetDB()
 
-	sqlStatement := `
-	  UPDATE book
-	  SET title = $2, author = $3, published_at = $4
-	  WHERE id = $1
-	  RETURNING id`
-	err := db.QueryRow(sqlStatement, id, book.Title, book.Author, book.PublishedAt).
-		Scan(&id)
+	err := db.QueryRow(updateBook, id, book.Title, book.Author, book.PublishedAt).
+		Scan(&book.Id)
 	if err != nil {
-		return models.Book{}, err
+		return Book{}, err
 	}
 	book.Id = id
 	return book, nil
 }
 
-func GetBook(book models.Book, id int) (models.Book, error) {
+func GetBook(book Book) (Book, error) {
 	db := storage.GetDB()
 
-	sqlStatement := `
-	  SELECT *
-	  FROM book
-	  WHERE id = $1`
-
-	err := db.QueryRow(sqlStatement, id).
+	err := db.QueryRow(getBook, book.Id).
 		Scan(&book.Id, &book.Title, &book.Author, &book.PublishedAt)
 	if err != nil {
 		return book, err
@@ -52,16 +39,12 @@ func GetBook(book models.Book, id int) (models.Book, error) {
 	return book, nil
 }
 
-func GetBooks() ([]models.Book, error) {
+func GetAllBooks() ([]Book, error) {
 	db := storage.GetDB()
 
-	var books []models.Book
+	var books []Book
 
-	sqlStatement := `
-	  SELECT *
-	  FROM book`
-
-	rows, err := db.Query(sqlStatement)
+	rows, err := db.Query(getAllBooks)
 
 	if err != nil {
 		return books, err
@@ -70,7 +53,7 @@ func GetBooks() ([]models.Book, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var book models.Book
+		var book Book
 
 		err = rows.Scan(&book.Id, &book.Title, &book.Author, &book.PublishedAt)
 
@@ -84,25 +67,22 @@ func GetBooks() ([]models.Book, error) {
 	return books, nil
 }
 
-func DeleteBook(id int) (int, error) {
+func DeleteBook(book Book) (Book, error) {
 
 	db := storage.GetDB()
 
-	sqlStatement := `DELETE FROM book WHERE id=$1`
-
-	res, err := db.Exec(sqlStatement, id)
+	res, err := db.Exec(deleteBook, book.Id)
 
 	if err != nil {
-		return 0, err
+		return book, err
 	}
 
 	rowsAffected, err := res.RowsAffected()
 
 	if err != nil || rowsAffected == 0 {
-		return 0, err
+		book.Id = 0
+		return book, err
 	}
 
-	fmt.Printf("Total rows/record affected %v", rowsAffected)
-
-	return id, nil
+	return book, nil
 }
