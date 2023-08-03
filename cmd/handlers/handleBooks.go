@@ -79,8 +79,6 @@ func GetAllBooks(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-
-
 	return c.JSON(http.StatusOK, toGetAllBooksResponse(books))
 }
 
